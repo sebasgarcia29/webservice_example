@@ -1,17 +1,24 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using PeliculasAPI.Controllers;
+using PeliculasAPI.Filters;
 using PeliculasAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
-builder.Services.AddSingleton<IRepositorie, RepositoryInMemory>();
-builder.Services.AddSingleton<WeatherForecastController>();
-builder.Services.AddControllers();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddResponseCaching();
+builder.Services.AddScoped<IRepositorie, RepositoryInMemory>();
+builder.Services.AddScoped<WeatherForecastController>();
+builder.Services.AddTransient<MyFilterAction>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(typeof(MyFilterException));
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -52,6 +59,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseResponseCaching();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -1,7 +1,10 @@
 ﻿using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PeliculasAPI.Entities;
+using PeliculasAPI.Filters;
 using PeliculasAPI.Repositories;
 
 namespace PeliculasAPI.Controllers
@@ -9,6 +12,7 @@ namespace PeliculasAPI.Controllers
     //[Route("api/[controller]")]
     [Route("api/genders")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GenderController : ControllerBase
     {
         private readonly IRepositorie repositorie;
@@ -27,6 +31,9 @@ namespace PeliculasAPI.Controllers
         [HttpGet] // https://localhost:7126/api/genders
         [HttpGet("list")] // https://localhost:7126/api/genders/list
         [HttpGet("/listGenders")] // https://localhost:7126/listGenders
+        //[ResponseCache(Duration = 60)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ServiceFilter(typeof(MyFilterAction))]
         public ActionResult<List<Gender>> Get()
         {
 
@@ -35,19 +42,20 @@ namespace PeliculasAPI.Controllers
         }
 
 
-        //[HttpGet("guid")] // api/genders/guid
-        //public ActionResult<Guid> GetGUID()
-        //{
-        //    //return repositorie.getGuid();
-        //    return Ok(new
-        //    {
-        //        Guid_GenderCOntroller = repositorie.getGuid(),
-        //        Guid_WeatherForecastController = weatherForecastController.getGUIDWeatherForecastControlller()
-        //    });
-        //}
+        [HttpGet("guid")] // api/genders/guid
+        public ActionResult<Guid> GetGUID()
+        {
+            //return repositorie.getGuid();
+            return Ok(new
+            {
+                Guid_GenderCOntroller = repositorie.getGuid(),
+                Guid_WeatherForecastController = weatherForecastController.getGUIDWeatherForecastControlller()
+            });
+        }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Gender>> Get(int Id, [BindRequired]string name)
+        //public async Task<ActionResult<Gender>> Get(int Id, [BindRequired]string name)
+        public async Task<ActionResult<Gender>> Get(int Id, string name)
         {
 
             //if (!ModelState.IsValid) {
@@ -61,6 +69,7 @@ namespace PeliculasAPI.Controllers
 
             if (gender == null)
             {
+                throw new ApplicationException($"El genero de ID {Id} no fue encontrado");
                 logger.LogWarning($"Not found gender from ID: {Id}");
                 return NotFound();
             }

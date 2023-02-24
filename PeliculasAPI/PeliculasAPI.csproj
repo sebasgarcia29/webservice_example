@@ -8,17 +8,20 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Entities\" />
     <None Remove="Repositories\" />
     <None Remove="Validator\" />
+    <None Remove="Filters\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Repositories\" />
     <Folder Include="Validator\" />
+    <Folder Include="Filters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />
