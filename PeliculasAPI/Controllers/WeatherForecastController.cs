@@ -35,5 +35,12 @@ public class WeatherForecastController : ControllerBase
         })
         .ToArray();
     }
+
+
+    //public Guid getGUIDWeatherForecastControlller()
+    //{
+    //    return repository.getGuid();
+    //}
+
 }
 

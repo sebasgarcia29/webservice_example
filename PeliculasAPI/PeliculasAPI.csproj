@@ -13,10 +13,12 @@
   <ItemGroup>
     <None Remove="Entities\" />
     <None Remove="Repositories\" />
+    <None Remove="Validator\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Repositories\" />
+    <Folder Include="Validator\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

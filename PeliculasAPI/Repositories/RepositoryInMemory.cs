@@ -15,10 +15,15 @@ namespace PeliculasAPI.Repositories
             new Gender() { Id = 1, Name= "Test1"},
             new Gender() { Id = 2, Name = "Test2" }
         	};
+
+            _guid = Guid.NewGuid();
+
         }
 
 
+        public Guid _guid;
 
+            
         public List<Gender> GetAllGenders()
         {
     		return _genders;
@@ -28,6 +33,19 @@ namespace PeliculasAPI.Repositories
         {
             await Task.Delay(TimeSpan.FromSeconds(3));
             return _genders.FirstOrDefault(x => x.Id == Id);
+        }
+
+
+        public Guid getGuid()
+        {
+            return _guid;
+        }
+
+        public void CreateGender(Gender gender)
+        {
+            gender.Id = _genders.Count() + 1;
+            _genders.Add(gender);
+
         }
 
     }
