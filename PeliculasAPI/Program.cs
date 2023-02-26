@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using PeliculasAPI;
 using PeliculasAPI.Controllers;
 using PeliculasAPI.Filters;
-using PeliculasAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddResponseCaching();
-builder.Services.AddScoped<IRepositorie, RepositoryInMemory>();
-builder.Services.AddScoped<WeatherForecastController>();
-builder.Services.AddTransient<MyFilterAction>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(MyFilterException));
@@ -24,32 +22,20 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
+var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
+builder.Services.AddDbContext<ApplicationDBContext>(
+    options => options.UseSqlServer(connectionString));
+
+builder.Services.AddCors(policyBuilder =>
+    policyBuilder.AddDefaultPolicy(policy =>
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyHeader())
+);
+
 var app = builder.Build();
-var logger = app.Services.GetService(typeof(ILogger<IStartup>)) as ILogger<IStartup>;
+
+app.UseCors();
 
 // Configure the HTTP request pipeline.
-
-app.Use(async (context, next) =>
-{
-
-    using (var swapStream = new MemoryStream())
-    {
-        var originalResponse = context.Response.Body;
-        context.Response.Body = swapStream;
-
-        await next.Invoke();
-
-        swapStream.Seek(0, SeekOrigin.Begin);
-        string response = new StreamReader(swapStream).ReadToEnd();
-        swapStream.Seek(0, SeekOrigin.Begin);
-
-        await swapStream.CopyToAsync(originalResponse);
-        context.Response.Body = originalResponse;
-
-        logger.LogInformation(response);
-
-    }
-});
 
 if (app.Environment.IsDevelopment())
 {
@@ -58,9 +44,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("corsapp");
 
-app.UseResponseCaching();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
